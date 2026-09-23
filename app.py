@@ -14,8 +14,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'blin-coffee-secret-key-change-me'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///coffee.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'blin-coffee-secret-key-change-me')
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.environ.get('DATABASE_PATH', os.path.join(basedir, 'coffee.db'))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 UPLOAD_FOLDER = os.path.join('static', 'img', 'menu')
@@ -906,7 +908,27 @@ def admin_products_bulk_confirm_delete():
 # ЗАПУСК
 # =========================================================
 
+# ---------- ИНИЦИАЛИЗАЦИЯ ----------
+
+def init_db():
+    """Создаёт таблицы и системную категорию. Безопасно вызывать много раз."""
+    with app.app_context():
+        db.create_all()
+        get_or_create_uncategorized()
+        if not User.query.filter_by(username='admin').first():
+            admin = User(username='admin', is_admin=True, show_admin_counters=True)
+            admin.set_password('admin')
+            db.session.add(admin)
+            db.session.commit()
+            print('Админ создан: admin / admin')
+
+
+# вызываем при импорте модуля — работает и локально, и на хостинге
+init_db()
+
+
 if __name__ == '__main__':
+    app.run(debug=True)
     with app.app_context():
         db.create_all()
         get_or_create_uncategorized()
