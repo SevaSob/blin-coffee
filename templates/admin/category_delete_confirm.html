@@ -1,0 +1,50 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Удаление категории{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Удаление категории</h1>
+</div>
+
+<div class="card p-4 mb-4" style="border-left: 6px solid #dc3545;">
+    <div style="font-size: 2.5rem; color: #dc3545;">⚠️</div>
+    <h3 class="mt-2">Терминальная операция</h3>
+    <p class="mb-3">
+        Вы собираетесь удалить категорию <strong>«{{ cat.full_name }}»</strong>.
+        Внутри неё:
+    </p>
+    <ul style="line-height: 1.8;">
+        <li>Вложенных категорий: <strong>{{ total_cats - 1 }}</strong></li>
+        <li>Товаров: <strong>{{ total_products }}</strong></li>
+    </ul>
+    <p class="text-muted small mb-0">
+        Рекомендуем сначала перенести товары в подходящую категорию,
+        и только потом удалить пустую. Иначе потом придётся разбирать завалы вручную.
+    </p>
+</div>
+
+<form method="post" class="card p-4">
+    <div class="mb-3">
+        <button type="submit" name="action" value="cancel" class="btn btn-outline-secondary w-100 py-3">
+            ← Отмена, сначала разберусь
+        </button>
+    </div>
+    <div class="mb-3">
+        <button type="submit" name="action" value="move_to_system"
+                class="btn btn-green w-100 py-3"
+                onclick="return confirm('Перенести {{ total_products }} товаров в «Без категории»?')">
+            📦 Перенести {{ total_products }} товаров в «Без категории»
+        </button>
+        <small class="text-muted d-block mt-2">
+            Товары сохранятся, категория удалится.
+        </small>
+    </div>
+    <div>
+        <button type="submit" name="action" value="delete_all"
+                class="btn btn-danger w-100 py-3"
+                onclick="return confirm('Удалить {{ total_cats }} категорий и {{ total_products }} товаров без возможности восстановления?')">
+            Удалить всё ({{ total_cats }} кат., {{ total_products }} тов.)
+        </button>
+    </div>
+</form>
+{% endblock %}

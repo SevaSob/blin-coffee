@@ -1,0 +1,30 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Массовое удаление{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>⚠️ Массовое удаление</h1>
+</div>
+
+<div class="card p-4 mb-4" style="border-left: 6px solid #dc3545;">
+    <div style="font-size: 3rem; color: #dc3545;">⚠️</div>
+    <h3 class="mt-2">Терминальная операция</h3>
+    <p>Вы удаляете <strong>{{ products|length }}</strong> товаров:</p>
+    <ul style="line-height: 1.8; max-height: 300px; overflow-y: auto;">
+        {% for p in products %}
+            <li>{{ p.name }} <span class="text-muted small">({{ p.category.full_name if p.category else '—' }})</span></li>
+        {% endfor %}
+    </ul>
+    <p class="text-muted small mb-0">Восстановить будет невозможно.</p>
+</div>
+
+<form method="post" action="{{ url_for('admin_products_bulk_confirm_delete') }}" class="card p-4">
+    {% for i in ids %}<input type="hidden" name="ids" value="{{ i }}">{% endfor %}
+    <button type="submit" class="btn btn-danger w-100 py-3 mb-2">
+        Подтвердить удаление {{ products|length }} товаров
+    </button>
+    <a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary w-100 py-3">
+        ← Отмена
+    </a>
+</form>
+{% endblock %}

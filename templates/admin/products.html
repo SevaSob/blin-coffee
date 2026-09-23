@@ -1,0 +1,148 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Каталог — админ{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Каталог</h1>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_export_catalog') }}" class="btn btn-outline-green">📥 CSV</a>
+        <a href="{{ url_for('admin_product_new') }}" class="btn btn-green">+ Товар</a>
+    </div>
+</div>
+
+<form method="get" class="filter-bar mb-3">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <input type="text" name="q" class="form-control" placeholder="🔍 Поиск" value="{{ q }}">
+        </div>
+        <div class="col-md-4">
+            <select name="category" class="form-select">
+                <option value="">Все категории</option>
+                {% for c, depth in flat %}
+                    <option value="{{ c.id }}" {% if current_cat and current_cat.id == c.id %}selected{% endif %}>
+                        {{ '— ' * depth }}{{ c.icon }} {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-green w-100">Применить</button></div>
+        <div class="col-md-1"><a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary w-100">✕</a></div>
+    </div>
+</form>
+
+<form method="post" action="{{ url_for('admin_products_bulk') }}" id="bulk-form">
+    <div class="bulk-bar" id="bulk-bar">
+        <div class="bulk-left">
+            <strong id="bulk-count">0</strong> выбрано
+        </div>
+        <div class="bulk-right">
+            <select name="action" id="bulk-action" class="form-select form-select-sm" style="width: auto;">
+                <option value="">Действие…</option>
+                <option value="move">Переместить в категорию</option>
+                <option value="delete">Удалить</option>
+            </select>
+            <select name="target_category" id="bulk-category" class="form-select form-select-sm" style="display:none; width: auto;">
+                <option value="">— Куда —</option>
+                {% for c, depth in flat %}
+                    <option value="{{ c.id }}">{{ '— ' * depth }}{{ c.icon }} {{ c.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-sm btn-green" id="bulk-submit" disabled>Применить</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearBulk()">Отмена</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="check-all"></th>
+                    <th>Фото</th><th>Название</th><th>Категория</th><th>Цена</th><th class="text-end">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td><input type="checkbox" name="ids" value="{{ p.id }}" class="row-check"></td>
+                    <td>
+                        {% if p.image_path %}
+                            <img src="{{ p.image_path }}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
+                        {% else %}<span class="text-muted">—</span>{% endif %}
+                    </td>
+                    <td><strong>{{ p.name }}</strong></td>
+                    <td>
+                        {% if p.category %}
+                            <span class="badge-admin">{{ p.category.full_name }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ p.price_display }}</td>
+                    <td class="text-end">
+                        <div class="action-buttons">
+                            <a href="{{ url_for('admin_product_edit', pid=p.id) }}"
+                               class="btn-icon" title="Редактировать">✏️</a>
+                            <form method="post" action="{{ url_for('admin_product_delete', pid=p.id) }}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Удалить «{{ p.name }}»?')">
+                                <button class="btn-icon btn-icon-danger" title="Удалить">🗑</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<script>
+const checkAll = document.getElementById('check-all');
+const rowChecks = document.querySelectorAll('.row-check');
+const bulkBar = document.getElementById('bulk-bar');
+const bulkCount = document.getElementById('bulk-count');
+const bulkAction = document.getElementById('bulk-action');
+const bulkCategory = document.getElementById('bulk-category');
+const bulkSubmit = document.getElementById('bulk-submit');
+
+function updateBulk() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    const n = checked.length;
+    bulkCount.textContent = n;
+    bulkBar.style.display = n > 0 ? 'flex' : 'none';
+    bulkSubmit.disabled = !(n > 0 && bulkAction.value);
+}
+function clearBulk() {
+    rowChecks.forEach(c => c.checked = false);
+    if (checkAll) checkAll.checked = false;
+    bulkAction.value = '';
+    bulkCategory.style.display = 'none';
+    updateBulk();
+}
+if (checkAll) {
+    checkAll.addEventListener('change', () => {
+        rowChecks.forEach(c => c.checked = checkAll.checked);
+        updateBulk();
+    });
+}
+rowChecks.forEach(c => c.addEventListener('change', updateBulk));
+
+bulkAction.addEventListener('change', () => {
+    bulkCategory.style.display = bulkAction.value === 'move' ? 'inline-block' : 'none';
+    if (bulkAction.value === 'delete') {
+        bulkSubmit.classList.remove('btn-green');
+        bulkSubmit.classList.add('btn-danger');
+    } else {
+        bulkSubmit.classList.remove('btn-danger');
+        bulkSubmit.classList.add('btn-green');
+    }
+    updateBulk();
+});
+
+document.getElementById('bulk-form').addEventListener('submit', (e) => {
+    if (bulkAction.value === 'delete') {
+        if (!confirm('Удалить выбранные товары? Это терминальная операция.')) {
+            e.preventDefault();
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Акции — Блин & Кофе{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Акции и спецпредложения</h1>
+
+{% if not promotions %}
+    <div class="text-center py-5">
+        <div style="font-size: 4rem;">🎁</div>
+        <p class="text-muted mt-3">Сейчас акций нет. Заходи позже!</p>
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    {% for pr in promotions %}
+    <div class="col-md-6 reveal">
+        <div class="card h-100">
+            {% if pr.image_path %}
+                <img src="{{ pr.image_path }}" class="card-img-top" style="height: 240px;" alt="{{ pr.title }}">
+            {% else %}
+                <div class="no-image" style="font-size: 4rem;">🎁</div>
+            {% endif %}
+            <div class="card-body">
+                <h4 class="card-title">{{ pr.title }}</h4>
+                <p class="card-text">{{ pr.description }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

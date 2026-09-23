@@ -1,0 +1,111 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Статистика — админ{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Статистика</h1>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5>Регистрации за 30 дней</h5>
+            <canvas id="regsChart" height="140"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5>Товары по категориям</h5>
+            <canvas id="catsChart" height="140"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4">
+    <h5 class="mb-3">Топ-10 товаров по избранному</h5>
+    <canvas id="favsChart" height="80"></canvas>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#1f2419';
+const gridColor = document.documentElement.getAttribute('data-theme') === 'dark' ? '#2a3520' : '#f0f3ec';
+
+fetch('/api/stats/full')
+    .then(r => r.json())
+    .then(data => {
+        new Chart(document.getElementById('regsChart'), {
+            type: 'line',
+            data: {
+                labels: data.regs_labels,
+                datasets: [{
+                    label: 'Новые пользователи',
+                    data: data.regs_data,
+                    borderColor: '#4a7c2f',
+                    backgroundColor: 'rgba(74,124,47,0.15)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#4a7c2f'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
+                    x: { ticks: { color: textColor }, grid: { color: gridColor } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('catsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: data.cats_labels,
+                datasets: [{
+                    data: data.cats_data,
+                    backgroundColor: [
+                        '#4a7c2f','#7ab648','#a5c98a','#2f5219',
+                        '#c7609b','#f4a5c8','#d4a017','#6b4423',
+                        '#7ec8e3','#c4e7f5','#f0c75e','#a67c52',
+                        '#e8f3dd','#3d6b1f','#8fbf60'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11 }, boxWidth: 12, color: textColor }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        new Chart(document.getElementById('favsChart'), {
+            type: 'bar',
+            data: {
+                labels: data.favs_labels,
+                datasets: [{
+                    label: 'В избранном',
+                    data: data.favs_data,
+                    backgroundColor: '#7ab648',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
+                    y: { ticks: { color: textColor }, grid: { display: false } }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

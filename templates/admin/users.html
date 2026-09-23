@@ -1,0 +1,77 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Пользователи — админ{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Пользователи</h1>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-num">{{ counts.total }}</div>
+            <div class="stat-label">Всего</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-num">{{ counts.admins }}</div>
+            <div class="stat-label">Админов</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-num">{{ counts.regular }}</div>
+            <div class="stat-label">Пользователей</div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>ID</th><th>Логин</th><th>Роль</th><th>Счётчики</th><th>Регистрация</th><th class="text-end">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td><strong>{{ u.username }}</strong>
+                    {% if u.id == current_user.id %}<span class="text-muted small">(вы)</span>{% endif %}
+                </td>
+                <td>{% if u.is_admin %}<span class="badge-admin">Админ</span>{% else %}Пользователь{% endif %}</td>
+                <td>
+                    {% if u.is_admin %}
+                        <form method="post" action="{{ url_for('admin_user_toggle_counters', uid=u.id) }}" class="d-inline">
+                            <button class="btn btn-sm {{ 'btn-green' if u.show_admin_counters else 'btn-outline-secondary' }}">
+                                {{ '✓ видит' if u.show_admin_counters else '✕ не видит' }}
+                            </button>
+                        </form>
+                    {% else %}—{% endif %}
+                </td>
+                <td class="small text-muted">{{ u.created_at.strftime('%d.%m.%Y') if u.created_at else '—' }}</td>
+                <td class="text-end">
+                    {% if u.id != current_user.id %}
+                        <div class="action-buttons">
+                            <form method="post" action="{{ url_for('admin_user_toggle_admin', uid=u.id) }}" class="d-inline">
+                                <button class="btn-icon" title="{{ 'Разжаловать' if u.is_admin else 'Сделать админом' }}">
+                                    {{ '⬇' if u.is_admin else '⬆' }}
+                                </button>
+                            </form>
+                            <form method="post" action="{{ url_for('admin_user_delete', uid=u.id) }}" class="d-inline"
+                                  onsubmit="return confirm('Удалить «{{ u.username }}»?')">
+                                <button class="btn-icon btn-icon-danger" title="Удалить">🗑</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <span class="text-muted small">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

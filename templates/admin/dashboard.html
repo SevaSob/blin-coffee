@@ -1,0 +1,79 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Админка — Блин & Кофе{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Обзор</h1>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-num">{{ stats.users }}</div>
+            <div class="stat-label">Пользователей</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-num">{{ stats.products }}</div>
+            <div class="stat-label">Товаров</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-num">{{ stats.promotions }}</div>
+            <div class="stat-label">Акций</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-num">{{ stats.categories }}</div>
+            <div class="stat-label">Категорий</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_products') }}" class="card p-4 h-100 text-decoration-none" style="color: inherit;">
+            <div style="font-size: 2rem;">🍽</div>
+            <h5 class="mt-2 mb-1">Каталог</h5>
+            <p class="card-text small mb-0">Добавить, изменить, удалить товары</p>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_categories') }}" class="card p-4 h-100 text-decoration-none" style="color: inherit;">
+            <div style="font-size: 2rem;">🏷</div>
+            <h5 class="mt-2 mb-1">Категории</h5>
+            <p class="card-text small mb-0">Переименовать, удалить, объединить</p>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_promotions') }}" class="card p-4 h-100 text-decoration-none" style="color: inherit;">
+            <div style="font-size: 2rem;">🎁</div>
+            <h5 class="mt-2 mb-1">Акции</h5>
+            <p class="card-text small mb-0">Управление спецпредложениями</p>
+        </a>
+    </div>
+</div>
+
+<div class="card p-4">
+    <h5 class="mb-3">Последние пользователи</h5>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr><th>ID</th><th>Логин</th><th>Роль</th></tr>
+            </thead>
+            <tbody>
+                {% for u in recent_users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.username }}</td>
+                    <td>{% if u.is_admin %}<span class="badge-admin">Админ</span>{% else %}Пользователь{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

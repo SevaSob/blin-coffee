@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Избранное — Блин & Кофе{% endblock %}
+
+{% block content %}
+<h1 class="section-title">❤️ Избранное</h1>
+
+{% if not products %}
+    <div class="text-center py-5">
+        <div style="font-size: 4rem;">🤍</div>
+        <p class="text-muted mt-3">Ты пока ничего не добавил в избранное.</p>
+        <a href="{{ url_for('catalog') }}" class="btn btn-green mt-2">Перейти в меню</a>
+    </div>
+{% else %}
+    <div class="row g-4">
+        {% for p in products %}
+        <div class="col-sm-6 col-md-4 col-lg-3 reveal">
+            <div class="card h-100" style="position:relative;">
+                <button class="fav-btn active" data-pid="{{ p.id }}"
+                        onclick="event.stopPropagation(); toggleFav(this).then(() => this.closest('.col-sm-6').remove());"
+                        title="Убрать из избранного">❤️</button>
+                <div onclick="openQuickView({{ p.id }})" style="cursor:pointer;">
+                    {% if p.image_path %}
+                        <div class="card-img-wrap">
+                            <img src="{{ p.image_path }}" alt="{{ p.name }}">
+                        </div>
+                    {% else %}
+                        <div class="placeholder-cat ph-default">☕</div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ p.name }}</h5>
+                        {% if p.description %}
+                            <p class="card-text small">{{ p.description[:70] }}{% if p.description|length > 70 %}…{% endif %}</p>
+                        {% endif %}
+                        <p class="price mt-auto mb-0">{{ p.price }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

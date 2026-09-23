@@ -1,0 +1,173 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Категории — админ{% endblock %}
+
+{% macro render_row(c, depth=0) %}
+<div class="cat-admin-row" data-id="{{ c.id }}"
+     style="padding-left: {{ 1 + depth * 1.5 }}rem;">
+    <span class="cat-icon">{{ c.icon or ('📦' if c.is_system else '📁') }}</span>
+    <span class="cat-admin-name">{{ c.name }}</span>
+    {% if c.is_system %}<span class="badge-system">системная</span>{% endif %}
+    <span class="cat-admin-count">{{ c.product_count }} тов.</span>
+
+    <div class="cat-row-actions">
+        {% if not c.is_system %}
+        <button class="btn-icon" title="Добавить подкатегорию"
+                onclick="openAdd({{ c.id }}, '{{ c.name|e }}')">＋</button>
+        <button class="btn-icon" title="Редактировать"
+                onclick="openEdit({{ c.id }}, '{{ c.name|e }}', '{{ c.icon|e }}', {{ c.parent_id or 0 }})">✏️</button>
+        <button class="btn-icon" title="Переместить"
+                onclick="openMove({{ c.id }}, '{{ c.name|e }}', {{ c.parent_id or 0 }})">↪</button>
+        <a href="{{ url_for('admin_category_delete', cid=c.id) }}"
+           class="btn-icon btn-icon-danger" title="Удалить">🗑</a>
+        {% endif %}
+    </div>
+</div>
+{% if c.children %}
+    {% for ch in c.children %}{{ render_row(ch, depth + 1) }}{% endfor %}
+{% endif %}
+{% endmacro %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Категории</h1>
+    <div class="admin-actions">
+        <button class="btn btn-green" onclick="openAdd(0, '')">+ Корневая категория</button>
+    </div>
+</div>
+
+<div class="card p-0">
+    {% if tree %}
+        {% for c in tree %}{{ render_row(c, 0) }}{% endfor %}
+    {% else %}
+        <div class="p-5 text-center text-muted">Категорий нет.</div>
+    {% endif %}
+</div>
+
+<!-- Модалка добавления -->
+<div class="modal-backdrop-custom" id="addModal">
+    <div class="modal-box" style="max-width: 480px;">
+        <button class="modal-close" onclick="closeModal('addModal')">✕</button>
+        <div style="padding: 30px;">
+            <h4 class="mb-3">Новая категория</h4>
+            <p class="text-muted small mb-3" id="add-parent-label"></p>
+            <form method="post" action="{{ url_for('admin_category_new') }}">
+                <input type="hidden" name="parent_id" id="add-parent-id" value="">
+                <div class="mb-3">
+                    <label class="form-label">Название</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Иконка (эмодзи)</label>
+                    <input type="text" name="icon" class="form-control" maxlength="4" placeholder="☕">
+                </div>
+                <button class="btn btn-green">Создать</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="closeModal('addModal')">Отмена</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модалка редактирования -->
+<div class="modal-backdrop-custom" id="editModal">
+    <div class="modal-box" style="max-width: 480px;">
+        <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+        <div style="padding: 30px;">
+            <h4 class="mb-3">Редактировать категорию</h4>
+            <form method="post" id="edit-form" action="">
+                <div class="mb-3">
+                    <label class="form-label">Название</label>
+                    <input type="text" name="name" id="edit-name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Иконка</label>
+                    <input type="text" name="icon" id="edit-icon" class="form-control" maxlength="4">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Родитель</label>
+                    <select name="parent_id" class="form-select" id="edit-parent">
+                        <option value="">— Корневая —</option>
+                        {% for c, depth in flat %}
+                            {% if not c.is_system %}
+                            <option value="{{ c.id }}" data-level="{{ depth }}">
+                                {{ '— ' * depth }}{{ c.icon }} {{ c.name }}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-green">Сохранить</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="closeModal('editModal')">Отмена</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модалка перемещения -->
+<div class="modal-backdrop-custom" id="moveModal">
+    <div class="modal-box" style="max-width: 480px;">
+        <button class="modal-close" onclick="closeModal('moveModal')">✕</button>
+        <div style="padding: 30px;">
+            <h4 class="mb-3">Переместить категорию</h4>
+            <p class="text-muted small mb-3" id="move-name-label"></p>
+            <form method="post" id="move-form" action="">
+                <div class="mb-3">
+                    <label class="form-label">Новый родитель</label>
+                    <select name="parent_id" class="form-select" id="move-parent">
+                        <option value="">— Сделать корневой —</option>
+                        {% for c, depth in flat %}
+                            {% if not c.is_system %}
+                            <option value="{{ c.id }}" data-level="{{ depth }}">
+                                {{ '— ' * depth }}{{ c.icon }} {{ c.name }}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-green">Переместить</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="closeModal('moveModal')">Отмена</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function openAdd(parentId, parentName){
+    document.getElementById('add-parent-id').value = parentId || '';
+    document.getElementById('add-parent-label').textContent = parentId
+        ? 'Родитель: ' + parentName
+        : 'Корневая категория';
+    openModal('addModal');
+}
+
+function openEdit(id, name, icon, parentId){
+    document.getElementById('edit-form').action = '/admin/categories/' + id + '/edit';
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-icon').value = icon;
+    document.getElementById('edit-parent').value = parentId || '';
+    openModal('editModal');
+}
+
+function openMove(id, name, parentId){
+    document.getElementById('move-form').action = '/admin/categories/' + id + '/move';
+    document.getElementById('move-name-label').textContent = 'Категория: ' + name;
+    document.getElementById('move-parent').value = parentId || '';
+    openModal('moveModal');
+}
+
+// предупреждение о глубоком уровне (4+)
+function checkDeep(sel, excludeId){
+    const opt = sel.selectedOptions[0];
+    const lvl = parseInt(opt?.dataset.level || '0');
+    if (lvl >= 3) {
+        if (!confirm('Внимание: это четвёртый уровень вложенности. Обычно больше трёх не используют. Уверены?')) {
+            sel.value = '';
+        }
+    }
+}
+document.getElementById('edit-parent').addEventListener('change', function(){checkDeep(this);});
+document.getElementById('move-parent').addEventListener('change', function(){checkDeep(this);});
+</script>
+{% endblock %}

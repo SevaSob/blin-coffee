@@ -1,0 +1,36 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Редактировать' if promotion else 'Новая' }} акция{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>{{ 'Редактировать акцию' if promotion else 'Новая акция' }}</h1>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_promotions') }}" class="btn btn-outline-secondary">← Назад</a>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="card p-4">
+    <div class="mb-3">
+        <label class="form-label">Название акции</label>
+        <input type="text" name="title" class="form-control" required
+               value="{{ promotion.title if promotion else '' }}"
+               placeholder="Например: -10% на первый заказ">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Описание</label>
+        <textarea name="description" class="form-control" rows="4"
+                  placeholder="Что именно даёт акция, условия, сроки...">{{ promotion.description if promotion else '' }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Картинка (необязательно)</label>
+        <input type="file" name="image" class="form-control" accept="image/*">
+        {% if promotion and promotion.image_path %}
+            <img src="{{ promotion.image_path }}" class="mt-2" style="max-height:120px;border-radius:8px;">
+        {% endif %}
+    </div>
+    <div>
+        <button class="btn btn-green">Сохранить</button>
+        <a href="{{ url_for('admin_promotions') }}" class="btn btn-outline-secondary">Отмена</a>
+    </div>
+</form>
+{% endblock %}

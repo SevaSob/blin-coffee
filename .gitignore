@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Виртуальное окружение
+.venv/
+venv/
+env/
+
+# База данных (её не пушим — создаётся на сервере через seed.py)
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# PyCharm
+.idea/
+
+# Загруженные картинки (чтобы не тащить в git, но при первом деплое их не будет — потом решим)
+# static/img/menu/*
+
+# Логи и мусор
+*.log
+.DS_Store
+Thumbs.db
+
+# Переменные окружения
+.env

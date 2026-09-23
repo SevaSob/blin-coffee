@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Блин & Кофе{% endblock %}</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">☕ Блин & Кофе</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navmenu">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('catalog') }}">Меню</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('promotions') }}">Акции</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">О нас</a></li>
+
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown ms-lg-2">
+                        <a class="nav-link dropdown-toggle user-menu" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="user-avatar">{{ current_user.username[0]|upper }}</span>
+                            <span class="d-none d-lg-inline">{{ current_user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('favorites') }}">
+                                    ❤️ Избранное
+                                </a>
+                            </li>
+                            {% if current_user.is_admin %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                    ⚙️ Админ-панель
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    🚪 Выйти
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Войти</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-light btn-sm" href="{{ url_for('register') }}">Регистрация</a>
+                    </li>
+                {% endif %}
+
+                <li class="nav-item">
+                    <button id="theme-toggle" title="Тема">🌙</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-4">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5>☕ Блин & Кофе</h5>
+                <p class="small">Блины, кофе и bubble tea в одном месте. Готовим с душой каждый день.</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Контакты</h5>
+                <p class="small mb-1">📍 г. Москва, ул. Примерная, 15</p>
+                <p class="small mb-1">📞 +7 (999) 123-45-67</p>
+                <p class="small mb-1">✉️ hello@blin-coffee.ru</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Часы работы</h5>
+                <p class="small mb-1">Пн–Пт: 08:00 – 22:00</p>
+                <p class="small mb-1">Сб–Вс: 09:00 – 23:00</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2025 Блин & Кофе. Все права защищены.
+        </div>
+    </div>
+</footer>
+
+<button id="to-top" title="Наверх">↑</button>
+<div id="toast-container"></div>
+
+<div id="flash-data" style="display:none;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <span data-cat="{{ category }}" data-msg="{{ message }}"></span>
+        {% endfor %}
+    {% endwith %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

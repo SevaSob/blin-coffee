@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Блин & Кофе — главная{% endblock %}
+
+{% block content %}
+<div class="hero text-center text-md-start" style="position:relative;">
+    <div class="floating-icon" style="top:20%;left:80%;">☕</div>
+    <div class="floating-icon" style="top:60%;left:90%;animation-delay:1.5s;">🥞</div>
+    <div class="floating-icon" style="top:10%;left:70%;animation-delay:3s;">🧋</div>
+
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1>Блины, кофе<br>и хорошее настроение</h1>
+            <p>Свежие блины с любой начинкой, авторский кофе и bubble tea<br class="d-none d-md-block"> — всё в одном месте.</p>
+            <a href="{{ url_for('catalog') }}" class="btn btn-light btn-lg">Смотреть меню →</a>
+        </div>
+    </div>
+</div>
+
+<h2 class="section-title">Почему мы</h2>
+<div class="row g-4 mb-5">
+    <div class="col-md-4 reveal">
+        <div class="card h-100 text-center p-4">
+            <div style="font-size: 3rem;">🥞</div>
+            <h5 class="card-title mt-3">Свежие блины</h5>
+            <p class="card-text">Печём прямо при вас. Начинки — от классики до авторских.</p>
+        </div>
+    </div>
+    <div class="col-md-4 reveal">
+        <div class="card h-100 text-center p-4">
+            <div style="font-size: 3rem;">☕</div>
+            <h5 class="card-title mt-3">Авторский кофе</h5>
+            <p class="card-text">Классические напитки и уникальные рецепты от наших бариста.</p>
+        </div>
+    </div>
+    <div class="col-md-4 reveal">
+        <div class="card h-100 text-center p-4">
+            <div style="font-size: 3rem;">🧋</div>
+            <h5 class="card-title mt-3">Bubble Tea</h5>
+            <p class="card-text">С тапиокой, джус боллами и воздушной пенкой — как в Азии.</p>
+        </div>
+    </div>
+</div>
+
+<div class="text-center my-5 reveal">
+    <a href="{{ url_for('promotions') }}" class="btn btn-outline-green btn-lg">Посмотреть акции</a>
+</div>
+{% endblock %}

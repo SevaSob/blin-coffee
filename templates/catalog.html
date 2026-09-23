@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Меню — Блин & Кофе{% endblock %}
+
+{% macro render_tree(cats, current_id) %}
+<ul class="cat-tree">
+    {% for c in cats %}
+    <li>
+        <a href="{{ url_for('catalog', category=c.id) }}"
+           class="{% if current_id == c.id %}active{% endif %}">
+            <span>{{ c.icon }}</span>
+            <span>{{ c.name }}</span>
+            <span class="cat-count">{{ c.product_count }}</span>
+        </a>
+        {% if c.children %}
+            {{ render_tree(c.children, current_id) }}
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endmacro %}
+
+{% macro render_tree(cats, current_id) %}
+<ul class="cat-tree">
+    {% for c in cats %}
+    <li>
+        <a href="{{ url_for('catalog', category=c.id) }}"
+           class="{% if current_id == c.id %}active{% endif %}">
+            <span>{{ c.icon }}</span>
+            <span>{{ c.name }}</span>
+            {% if can_see_counters %}
+                <span class="cat-count">{{ c.product_count }}</span>
+            {% endif %}
+        </a>
+        {% if c.children %}
+            {{ render_tree(c.children, current_id) }}
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endmacro %}
+
+{% block content %}
+<h1 class="section-title">Наше меню</h1>
+
+<div class="filter-bar mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-6 position-relative search-wrapper">
+            <input type="text" id="live-search" class="form-control"
+                   placeholder="🔍 Начни вводить название..." autocomplete="off">
+            <div id="search-results" class="search-results"></div>
+        </div>
+        {% if current_cat or q %}
+        <div class="col-md-3">
+            <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary w-100">✕ Сбросить</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="catalog-layout">
+    <aside class="catalog-sidebar">
+        {{ render_tree(menu_categories, current_cat.id if current_cat else None) }}
+    </aside>
+
+    <div>
+        {% if chain %}
+        <nav class="mb-3">
+            <ol class="breadcrumb small mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('catalog') }}">Всё меню</a></li>
+                {% for c in chain %}
+                    <li class="breadcrumb-item">
+                        {% if loop.last %}{{ c.name }}
+                        {% else %}<a href="{{ url_for('catalog', category=c.id) }}">{{ c.name }}</a>{% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        </nav>
+        {% endif %}
+
+        {% if not grouped %}
+            <div class="text-center py-5">
+                <div style="font-size: 4rem;">🔍</div>
+                <p class="text-muted mt-3">Ничего не найдено.</p>
+            </div>
+        {% endif %}
+
+        {% for category, items in grouped.items() %}
+            <h2 class="category-title">
+                {{ category.icon }} {{ category.name }}
+            </h2>
+            <div class="row g-4">
+                {% for p in items %}
+                <div class="col-sm-6 col-md-4 col-lg-3 reveal">
+                    <div class="card h-100" style="position:relative;">
+                        {% if current_user.is_authenticated %}
+                        <button class="fav-btn {% if p.id in user_fav_ids %}active{% endif %}"
+                                data-pid="{{ p.id }}"
+                                onclick="event.stopPropagation(); toggleFav(this);"
+                                title="В избранное">
+                            {% if p.id in user_fav_ids %}❤️{% else %}🤍{% endif %}
+                        </button>
+                        {% endif %}
+
+                        <div onclick="openQuickView({{ p.id }})" style="cursor:pointer;">
+                            {% if p.image_path %}
+                                <div class="card-img-wrap">
+                                    <img src="{{ p.image_path }}" alt="{{ p.name }}" loading="lazy">
+                                </div>
+                            {% else %}
+                                {% set ph = 'ph-default' %}
+                                {% set cn = category.name.lower() %}
+                                {% if 'кофе' in cn or 'какао' in cn %}{% set ph = 'ph-coffee' %}
+                                {% elif 'блин' in cn %}{% set ph = 'ph-bliny' %}
+                                {% elif 'bubble' in cn or 'тапиок' in cn or 'болл' in cn %}{% set ph = 'ph-bubble' %}
+                                {% elif 'чай' in cn %}{% set ph = 'ph-tea' %}
+                                {% elif 'морож' in cn or 'десерт' in cn %}{% set ph = 'ph-morozhenoe' %}
+                                {% endif %}
+                                <div class="placeholder-cat {{ ph }}">☕</div>
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ p.name }}</h5>
+                                {% if p.description %}
+                                    <p class="card-text small">{{ p.description[:70] }}{% if p.description|length > 70 %}…{% endif %}</p>
+                                {% endif %}
+                                <p class="price mt-auto mb-0">{{ p.price_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

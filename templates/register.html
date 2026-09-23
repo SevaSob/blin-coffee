@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — Блин & Кофе{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h2 class="mb-4">Регистрация</h2>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Логин</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Пароль</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button class="btn btn-green w-100">Создать аккаунт</button>
+            </form>
+            <p class="mt-4 mb-0 text-center text-muted small">
+                Уже есть аккаунт?
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-green w-100 mt-2">
+                Войти →
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

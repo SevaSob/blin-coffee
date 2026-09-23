@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}О нас — Блин & Кофе{% endblock %}
+
+{% block content %}
+<div class="hero text-center">
+    <h1>О кофейне</h1>
+    <p>Немного о том, кто мы и почему мы здесь</p>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6 reveal">
+        <div class="card p-4 h-100">
+            <h3>Наша история</h3>
+            <p>«Блин & Кофе» — это место, где классические русские блины встречаются с авторским кофе
+            и азиатским bubble tea. Мы открылись с одной идеей: делать простые вещи идеально.</p>
+            <p>Каждый блин печём при вас, каждый напиток готовит бариста, который знает своё дело.
+            Никакой заморозки, никаких полуфабрикатов.</p>
+        </div>
+    </div>
+    <div class="col-md-6 reveal">
+        <div class="card p-4 h-100">
+            <h3>Что у нас есть</h3>
+            <ul style="line-height:2;">
+                <li>🥞 Более 10 видов блинов с разными начинками</li>
+                <li>☕ Классический и авторский кофе</li>
+                <li>🧋 Bubble Tea с тапиокой и джус боллами</li>
+                <li>🥗 Обеденное меню: супы, салаты, каши</li>
+                <li>🍦 Мороженое и моти</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<h2 class="section-title">Как нас найти</h2>
+<div class="card p-3 reveal">
+    <iframe
+        src="https://yandex.ru/map-widget/v1/?ll=37.617700%2C55.755800&z=13"
+        width="100%" height="400" frameborder="0" style="border-radius:12px;"
+        allowfullscreen="true">
+    </iframe>
+</div>
+
+<div class="row g-4 mt-3">
+    <div class="col-md-4 reveal">
+        <div class="card p-4 text-center">
+            <div style="font-size:2rem;">📍</div>
+            <h5 class="mt-2">Адрес</h5>
+            <p class="card-text mb-0">г. Москва, ул. Примерная, 15</p>
+        </div>
+    </div>
+    <div class="col-md-4 reveal">
+        <div class="card p-4 text-center">
+            <div style="font-size:2rem;">📞</div>
+            <h5 class="mt-2">Телефон</h5>
+            <p class="card-text mb-0">+7 (999) 123-45-67</p>
+        </div>
+    </div>
+    <div class="col-md-4 reveal">
+        <div class="card p-4 text-center">
+            <div style="font-size:2rem;">🕐</div>
+            <h5 class="mt-2">Часы работы</h5>
+            <p class="card-text mb-0">Пн–Пт: 08:00–22:00<br>Сб–Вс: 09:00–23:00</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

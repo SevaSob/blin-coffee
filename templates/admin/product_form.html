@@ -1,0 +1,56 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Редактировать' if product else 'Новый' }} товар{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>{{ 'Редактировать товар' if product else 'Новый товар' }}</h1>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary">← Назад</a>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="card p-4">
+    <div class="mb-3">
+        <label class="form-label">Название</label>
+        <input type="text" name="name" class="form-control" required value="{{ product.name if product else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Категория</label>
+        <select name="category_id" class="form-select" required>
+            <option value="">— Выберите категорию —</option>
+            {% for c, depth in flat %}
+                <option value="{{ c.id }}"
+                    {% if product and product.category_id == c.id %}selected{% endif %}>
+                    {{ '— ' * depth }}{{ c.icon }} {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-text">
+            Нет нужной категории? <a href="{{ url_for('admin_categories') }}">Создать новую →</a>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Цена</label>
+        <input type="text" name="price" class="form-control" required
+               placeholder="Например: 220 ₽ или 250 / 350 ₽"
+               value="{{ product.price if product else '' }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Описание</label>
+        <textarea name="description" class="form-control" rows="3">{{ product.description if product else '' }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Картинка</label>
+        <input type="file" name="image" class="form-control" accept="image/*">
+        {% if product and product.image_path %}
+            <img src="{{ product.image_path }}" class="mt-2" style="max-height:120px;border-radius:8px;">
+        {% endif %}
+    </div>
+    <div>
+        <button class="btn btn-green">Сохранить</button>
+        <a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary">Отмена</a>
+    </div>
+</form>
+{% endblock %}

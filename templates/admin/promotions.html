@@ -1,0 +1,53 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Акции — админ{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Акции</h1>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_promotion_new') }}" class="btn btn-green">+ Добавить акцию</a>
+    </div>
+</div>
+
+{% if not promotions %}
+    <div class="card p-5 text-center">
+        <div style="font-size: 3rem;">🎁</div>
+        <p class="text-muted mt-2 mb-3">Акций пока нет.</p>
+        <a href="{{ url_for('admin_promotion_new') }}" class="btn btn-green">Добавить первую</a>
+    </div>
+{% else %}
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr><th>Фото</th><th>Название</th><th>Описание</th><th class="text-end">Действия</th></tr>
+        </thead>
+        <tbody>
+            {% for pr in promotions %}
+            <tr>
+                <td>
+                    {% if pr.image_path %}
+                        <img src="{{ pr.image_path }}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ pr.title }}</strong></td>
+                <td class="small">{{ pr.description[:80] }}{% if pr.description|length > 80 %}…{% endif %}</td>
+                <td class="text-end">
+                    <div class="action-buttons">
+                        <a href="{{ url_for('admin_promotion_edit', pid=pr.id) }}"
+                           class="btn-icon" title="Редактировать">✏️</a>
+                        <form method="post" action="{{ url_for('admin_promotion_delete', pid=pr.id) }}"
+                              class="d-inline"
+                              onsubmit="return confirm('Удалить акцию «{{ pr.title }}»?')">
+                            <button class="btn-icon btn-icon-danger" title="Удалить">🗑</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

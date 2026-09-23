@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-layout">
+
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('admin_dashboard') }}"
+           class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+            📊 Обзор
+        </a>
+        <a href="{{ url_for('admin_stats') }}"
+           class="{% if request.endpoint == 'admin_stats' %}active{% endif %}">
+            📈 Статистика
+        </a>
+        <hr>
+        <a href="{{ url_for('admin_products') }}"
+           class="{% if 'product' in request.endpoint %}active{% endif %}">
+            🍽 Каталог
+        </a>
+        <a href="{{ url_for('admin_categories') }}"
+           class="{% if 'categor' in request.endpoint %}active{% endif %}">
+            🏷 Категории
+        </a>
+        <a href="{{ url_for('admin_promotions') }}"
+           class="{% if 'promotion' in request.endpoint %}active{% endif %}">
+            🎁 Акции
+        </a>
+        <a href="{{ url_for('admin_users') }}"
+           class="{% if 'user' in request.endpoint %}active{% endif %}">
+            👥 Пользователи
+        </a>
+        <a href="{{ url_for('admin_audit') }}"
+           class="{% if request.endpoint == 'admin_audit' %}active{% endif %}">
+            📜 Журнал
+        </a>
+        <hr>
+        <a href="{{ url_for('admin_password') }}"
+           class="{% if request.endpoint == 'admin_password' %}active{% endif %}">
+            🔒 Сменить пароль
+        </a>
+        <a href="{{ url_for('index') }}">🌐 На сайт</a>
+    </aside>
+
+    <section class="admin-content">
+        {% block admin_content %}{% endblock %}
+    </section>
+
+</div>
+{% endblock %}
