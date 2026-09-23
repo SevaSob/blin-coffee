@@ -911,16 +911,29 @@ def admin_products_bulk_confirm_delete():
 # ---------- ИНИЦИАЛИЗАЦИЯ ----------
 
 def init_db():
-    """Создаёт таблицы и системную категорию. Безопасно вызывать много раз."""
+    """Создаёт таблицы, при пустой базе — засеивает, создаёт админа."""
     with app.app_context():
         db.create_all()
         get_or_create_uncategorized()
+
+        if Product.query.count() == 0:
+            print('🌱 База пустая — запускаю seed...')
+            try:
+                import seed
+                seed.run()
+            except Exception as e:
+                print(f'⚠️ Автосид упал: {e}')
+                import traceback
+                traceback.print_exc()
+        else:
+            print(f'📦 В базе уже {Product.query.count()} товаров')
+
         if not User.query.filter_by(username='admin').first():
             admin = User(username='admin', is_admin=True, show_admin_counters=True)
             admin.set_password('admin')
             db.session.add(admin)
             db.session.commit()
-            print('Админ создан: admin / admin')
+            print('✅ Админ создан: admin / admin')
 
 
 # вызываем при импорте модуля — работает и локально, и на хостинге
