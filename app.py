@@ -17,7 +17,14 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'blin-coffee-secret-key-change-me')
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.environ.get('DATABASE_PATH', os.path.join(basedir, 'coffee.db'))
+
+# гарантируем, что папка существует
+db_dir = os.path.dirname(db_path)
+if db_dir:
+    os.makedirs(db_dir, exist_ok=True)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+print(f'📁 База данных: {db_path}', flush=True)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 UPLOAD_FOLDER = os.path.join('static', 'img', 'menu')
@@ -937,7 +944,12 @@ def init_db():
 
 
 # вызываем при импорте модуля — работает и локально, и на хостинге
-init_db()
+try:
+    init_db()
+except Exception as e:
+    import traceback
+    print(f'⚠️ init_db упал: {e}', flush=True)
+    traceback.print_exc()
 
 
 if __name__ == '__main__':
